@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as o}from"./index-597b71bf.js";const s={data(){return{}}},c={class:"mt-5"};function r(a,n,_,p,d,i){return t(),o("div",c,"這是首頁")}const m=e(s,[["render",r]]);export{m as default};
