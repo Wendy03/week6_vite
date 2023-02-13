@@ -1,22 +1,27 @@
 <template>
-  <div class=" mt-5">
+  <div class="mt-5">
     <h2>{{ product.title }}</h2>
     <div class="row">
       <div class="col-sm-5">
-        <div style="
+        <div
+          style="
             min-height: 50vh;
             background-size: cover;
             background-position: center;
           "
-             :style="{ backgroundImage: `url(${product.imageUrl})` }"></div>
-        <template v-for="(img, index) in product.imagesUrl"
-                  :key="index + 'img'">
-          <div class="row"
-               v-if="img">
+          :style="{ backgroundImage: `url(${product.imageUrl})` }"
+        ></div>
+        <template
+          v-for="(img, index) in product.imagesUrl"
+          :key="index + 'img'"
+        >
+          <div class="row" v-if="img">
             <div class="col-3">
-              <img :src="img"
-                   :alt="index + 'img'"
-                   class="card-image mt-2 w-100" />
+              <img
+                :src="img"
+                :alt="index + 'img'"
+                class="card-image mt-2 w-100"
+              />
             </div>
           </div>
         </template>
@@ -29,17 +34,24 @@
         <p>商品內容：{{ product.content }}</p>
         <div class="h5">{{ product.price }} 元</div>
         <div class="input-group mt-5">
-          <select class="form-select"
-                  name="qty"
-                  v-model.number="qty">
-            <option :value="num"
-                    v-for="num in 5"
-                    :key="num + 'num'">
+          <select class="form-select" name="qty" v-model.number="qty">
+            <option :value="num" v-for="num in 5" :key="num + 'num'">
               {{ num }} {{ product.unit }}
             </option>
           </select>
-          <button type="button"
-                  class="btn btn-primary">加入購物車</button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="addToCart(product.id, qty)"
+          >
+            <span
+              v-if="product.id === loadingItem"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            加入購物車
+          </button>
         </div>
       </div>
     </div>
@@ -47,7 +59,9 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'pinia';
 import Toast from '../../utils/Toast';
+import cartStore from '../../stores/frontend/cartStore';
 import statusStore from '../../stores/statusStore';
 
 const { VITE_API, VITE_PATH } = import.meta.env;
@@ -58,12 +72,13 @@ export default {
     return {
       product: {},
       qty: 1,
+      isProcessing: false,
     };
   },
   methods: {
     getProduct() {
-      const { id } = this.$route.params;
       status.isLoading = true;
+      const { id } = this.$route.params;
       this.$http
         .get(`${VITE_API}/api/${VITE_PATH}/product/${id}`)
         .then((res) => {
@@ -80,6 +95,10 @@ export default {
           });
         });
     },
+    ...mapActions(cartStore, ['addToCart']),
+  },
+  computed: {
+    ...mapState(statusStore, ['loadingItem']),
   },
   mounted() {
     this.getProduct();
